@@ -1,13 +1,13 @@
 package com.restaurant.Restaurant_Backend.service.impl;
 
 
-import com.restaurant.dto.request.MenuItemRequest;
-import com.restaurant.dto.response.MenuItemResponse;
-import com.restaurant.exception.ResourceNotFoundException;
-import com.restaurant.model.DietaryTag;
-import com.restaurant.model.MenuItem;
-import com.restaurant.repository.MenuItemRepository;
-import com.restaurant.service.MenuItemService;
+import com.restaurant.Restaurant_Backend.dto.request.MenuItemRequest;
+import com.restaurant.Restaurant_Backend.dto.response.MenuItemResponse;
+import com.restaurant.Restaurant_Backend.exception.ResourceNotFoundException;
+import com.restaurant.Restaurant_Backend.model.DietaryTag;
+import com.restaurant.Restaurant_Backend.model.MenuItem;
+import com.restaurant.Restaurant_Backend.repository.MenuItemRepository;
+import com.restaurant.Restaurant_Backend.service.MenuItemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

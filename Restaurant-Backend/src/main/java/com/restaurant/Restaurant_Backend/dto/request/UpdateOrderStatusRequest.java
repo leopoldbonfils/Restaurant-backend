@@ -2,7 +2,7 @@ package com.restaurant.Restaurant_Backend.dto.request;
 
 
 
-import com.restaurant.model.OrderStatus;
+import com.restaurant.Restaurant_Backend.model.OrderStatus;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 

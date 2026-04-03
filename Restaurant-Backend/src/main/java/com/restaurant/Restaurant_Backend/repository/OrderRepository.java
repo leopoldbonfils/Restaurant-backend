@@ -1,9 +1,7 @@
 package com.restaurant.Restaurant_Backend.repository;
 
-package com.restaurant.repository;
-
-import com.restaurant.model.Order;
-import com.restaurant.model.OrderStatus;
+import com.restaurant.Restaurant_Backend.model.Order;
+import com.restaurant.Restaurant_Backend.model.OrderStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

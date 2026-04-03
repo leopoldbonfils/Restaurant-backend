@@ -2,9 +2,9 @@ package com.restaurant.Restaurant_Backend.config;
 
 
 
-import com.restaurant.model.DietaryTag;
-import com.restaurant.model.MenuItem;
-import com.restaurant.repository.MenuItemRepository;
+import com.restaurant.Restaurant_Backend.model.DietaryTag;
+import com.restaurant.Restaurant_Backend.model.MenuItem;
+import com.restaurant.Restaurant_Backend.repository.MenuItemRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;

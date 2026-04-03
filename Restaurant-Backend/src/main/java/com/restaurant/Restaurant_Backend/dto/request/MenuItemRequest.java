@@ -1,7 +1,7 @@
 package com.restaurant.Restaurant_Backend.dto.request;
 
 
-import com.restaurant.model.DietaryTag;
+import com.restaurant.Restaurant_Backend.model.DietaryTag;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 

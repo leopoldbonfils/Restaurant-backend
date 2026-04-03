@@ -1,11 +1,11 @@
 package com.restaurant.Restaurant_Backend.controller;
 
 
-import com.restaurant.dto.request.MenuItemRequest;
-import com.restaurant.dto.response.ApiResponse;
-import com.restaurant.dto.response.MenuItemResponse;
-import com.restaurant.model.DietaryTag;
-import com.restaurant.service.MenuItemService;
+import com.restaurant.Restaurant_Backend.dto.request.MenuItemRequest;
+import com.restaurant.Restaurant_Backend.dto.response.ApiResponse;
+import com.restaurant.Restaurant_Backend.dto.response.MenuItemResponse;
+import com.restaurant.Restaurant_Backend.model.DietaryTag;
+import com.restaurant.Restaurant_Backend.service.MenuItemService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

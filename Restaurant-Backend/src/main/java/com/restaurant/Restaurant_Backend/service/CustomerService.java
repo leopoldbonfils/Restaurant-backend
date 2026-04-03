@@ -1,10 +1,9 @@
 package com.restaurant.Restaurant_Backend.service;
 
-
-import com.restaurant.dto.request.CustomerCheckInRequest;
-import com.restaurant.dto.response.CustomerResponse;
-
 import java.util.List;
+
+import com.restaurant.Restaurant_Backend.dto.request.CustomerCheckInRequest;
+import com.restaurant.Restaurant_Backend.dto.response.CustomerResponse;
 
 public interface CustomerService {
 

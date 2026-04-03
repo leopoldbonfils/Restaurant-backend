@@ -2,7 +2,7 @@ package com.restaurant.Restaurant_Backend.dto.response;
 
 
 
-import com.restaurant.model.OrderStatus;
+import com.restaurant.Restaurant_Backend.model.OrderStatus;
 import lombok.Builder;
 import lombok.Data;
 

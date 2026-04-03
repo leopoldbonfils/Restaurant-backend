@@ -1,7 +1,7 @@
 package com.restaurant.Restaurant_Backend.dto.response;
 
 
-import com.restaurant.model.DietaryTag;
+import com.restaurant.Restaurant_Backend.model.DietaryTag;
 import lombok.Builder;
 import lombok.Data;
 

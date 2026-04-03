@@ -1,10 +1,10 @@
 package com.restaurant.Restaurant_Backend.controller;
 
 
-import com.restaurant.dto.request.CustomerCheckInRequest;
-import com.restaurant.dto.response.ApiResponse;
-import com.restaurant.dto.response.CustomerResponse;
-import com.restaurant.service.CustomerService;
+import com.restaurant.Restaurant_Backend.dto.request.CustomerCheckInRequest;
+import com.restaurant.Restaurant_Backend.dto.response.ApiResponse;
+import com.restaurant.Restaurant_Backend.dto.response.CustomerResponse;
+import com.restaurant.Restaurant_Backend.service.CustomerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

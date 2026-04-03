@@ -1,12 +1,12 @@
 package com.restaurant.Restaurant_Backend.service.impl;
 
-import com.restaurant.dto.request.CustomerCheckInRequest;
-import com.restaurant.dto.response.CustomerResponse;
-import com.restaurant.exception.BadRequestException;
-import com.restaurant.exception.ResourceNotFoundException;
-import com.restaurant.model.Customer;
-import com.restaurant.repository.CustomerRepository;
-import com.restaurant.service.CustomerService;
+import com.restaurant.Restaurant_Backend.dto.request.CustomerCheckInRequest;
+import com.restaurant.Restaurant_Backend.dto.response.CustomerResponse;
+import com.restaurant.Restaurant_Backend.exception.BadRequestException;
+import com.restaurant.Restaurant_Backend.exception.ResourceNotFoundException;
+import com.restaurant.Restaurant_Backend.model.Customer;
+import com.restaurant.Restaurant_Backend.repository.CustomerRepository;
+import com.restaurant.Restaurant_Backend.service.CustomerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,13 +1,13 @@
 package com.restaurant.Restaurant_Backend.controller;
 
 
-import com.restaurant.dto.request.PlaceOrderRequest;
-import com.restaurant.dto.request.UpdateOrderStatusRequest;
-import com.restaurant.dto.response.AnalyticsSummaryResponse;
-import com.restaurant.dto.response.ApiResponse;
-import com.restaurant.dto.response.OrderResponse;
-import com.restaurant.model.OrderStatus;
-import com.restaurant.service.OrderService;
+import com.restaurant.Restaurant_Backend.dto.request.PlaceOrderRequest;
+import com.restaurant.Restaurant_Backend.dto.request.UpdateOrderStatusRequest;
+import com.restaurant.Restaurant_Backend.dto.response.AnalyticsSummaryResponse;
+import com.restaurant.Restaurant_Backend.dto.response.ApiResponse;
+import com.restaurant.Restaurant_Backend.dto.response.OrderResponse;
+import com.restaurant.Restaurant_Backend.model.OrderStatus;
+import com.restaurant.Restaurant_Backend.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

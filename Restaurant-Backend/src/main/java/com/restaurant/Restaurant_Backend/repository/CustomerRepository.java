@@ -1,7 +1,7 @@
 package com.restaurant.Restaurant_Backend.repository;
 
 
-import com.restaurant.model.Customer;
+import com.restaurant.Restaurant_Backend.model.Customer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

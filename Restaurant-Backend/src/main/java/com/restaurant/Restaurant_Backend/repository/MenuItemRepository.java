@@ -2,8 +2,8 @@ package com.restaurant.Restaurant_Backend.repository;
 
 
 
-import com.restaurant.model.DietaryTag;
-import com.restaurant.model.MenuItem;
+import com.restaurant.Restaurant_Backend.model.DietaryTag;
+import com.restaurant.Restaurant_Backend.model.MenuItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

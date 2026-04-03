@@ -1,14 +1,15 @@
 package com.restaurant.Restaurant_Backend.websocket;
 
+import java.time.LocalDateTime;
 
-import com.restaurant.model.Order;
-import com.restaurant.model.OrderStatus;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import com.restaurant.Restaurant_Backend.model.Order;
+import com.restaurant.Restaurant_Backend.model.OrderStatus;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Broadcasts real-time order-status events to WebSocket subscribers.
@@ -39,10 +40,8 @@ public class OrderNotificationService {
                 .timestamp(LocalDateTime.now())
                 .build();
 
-        // Kitchen / waiter board – all orders
         messagingTemplate.convertAndSend("/topic/orders", event);
 
-        // Customer-specific channel – only their table
         String tableDestination = "/topic/orders/" + order.getTableNumber();
         messagingTemplate.convertAndSend(tableDestination, event);
 

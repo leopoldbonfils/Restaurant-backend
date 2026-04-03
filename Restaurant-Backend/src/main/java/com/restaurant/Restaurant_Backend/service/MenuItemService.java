@@ -1,9 +1,9 @@
 package com.restaurant.Restaurant_Backend.service;
 
 
-import com.restaurant.dto.request.MenuItemRequest;
-import com.restaurant.dto.response.MenuItemResponse;
-import com.restaurant.model.DietaryTag;
+import com.restaurant.Restaurant_Backend.dto.request.MenuItemRequest;
+import com.restaurant.Restaurant_Backend.dto.response.MenuItemResponse;
+import com.restaurant.Restaurant_Backend.model.DietaryTag;
 
 import java.util.List;
 
