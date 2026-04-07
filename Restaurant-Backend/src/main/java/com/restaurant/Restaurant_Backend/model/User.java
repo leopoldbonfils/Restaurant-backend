@@ -3,7 +3,6 @@ package com.restaurant.Restaurant_Backend.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -17,70 +16,116 @@ import java.time.LocalDateTime;
  *
  * Table: "users"
  *
- * Columns:
- *   id, email, password, role, full_name,
- *   is_enabled, created_at
+ * NOTE: Explicit getters and setters are written out manually here
+ * to avoid NetBeans + Lombok compatibility issues.
  */
 @Entity
 @Table(name = "users")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /**
-     * Used as the login username.
-     * Must be unique across all users.
-     */
     @Email
     @NotBlank
     @Column(nullable = false, unique = true, length = 150)
     private String email;
 
-    /**
-     * BCrypt-hashed password.
-     * Never stored as plain text.
-     */
     @NotBlank
     @Column(nullable = false)
     private String password;
 
-    /**
-     * Determines what the user can access.
-     * Stored as a string e.g. "ADMIN", "KITCHEN", "CUSTOMER".
-     */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    @Builder.Default
     private Role role = Role.CUSTOMER;
 
-    /**
-     * Display name shown on kitchen and admin screens.
-     * Optional — customers may not have one.
-     */
     @Column(name = "full_name", length = 100)
     private String fullName;
 
-    /**
-     * Admin can disable a user account without deleting it.
-     * Disabled users cannot log in.
-     */
     @Column(name = "is_enabled", nullable = false)
-    @Builder.Default
     private Boolean isEnabled = true;
 
-    /**
-     * Timestamp of account creation.
-     * Set automatically by @PrePersist — never updated after that.
-     */
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    // ── Constructors ─────────────────────────────────────────────────────────
+
+    public User() {}
+
+    public User(Long id, String email, String password, Role role,
+                String fullName, Boolean isEnabled, LocalDateTime createdAt) {
+        this.id = id;
+        this.email = email;
+        this.password = password;
+        this.role = role;
+        this.fullName = fullName;
+        this.isEnabled = isEnabled;
+        this.createdAt = createdAt;
+    }
+
+    // ── Getters ──────────────────────────────────────────────────────────────
+
+    public Long getId() { return id; }
+
+    public String getEmail() { return email; }
+
+    public String getPassword() { return password; }
+
+    public Role getRole() { return role; }
+
+    public String getFullName() { return fullName; }
+
+    public Boolean getIsEnabled() { return isEnabled; }
+
+    public LocalDateTime getCreatedAt() { return createdAt; }
+
+    // ── Setters ──────────────────────────────────────────────────────────────
+
+    public void setId(Long id) { this.id = id; }
+
+    public void setEmail(String email) { this.email = email; }
+
+    public void setPassword(String password) { this.password = password; }
+
+    public void setRole(Role role) { this.role = role; }
+
+    public void setFullName(String fullName) { this.fullName = fullName; }
+
+    public void setIsEnabled(Boolean isEnabled) { this.isEnabled = isEnabled; }
+
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    // ── Builder ──────────────────────────────────────────────────────────────
+
+    public static Builder builder() { return new Builder(); }
+
+    public static class Builder {
+        private Long id;
+        private String email;
+        private String password;
+        private Role role = Role.CUSTOMER;
+        private String fullName;
+        private Boolean isEnabled = true;
+
+        public Builder id(Long id) { this.id = id; return this; }
+        public Builder email(String email) { this.email = email; return this; }
+        public Builder password(String password) { this.password = password; return this; }
+        public Builder role(Role role) { this.role = role; return this; }
+        public Builder fullName(String fullName) { this.fullName = fullName; return this; }
+        public Builder isEnabled(Boolean isEnabled) { this.isEnabled = isEnabled; return this; }
+
+        public User build() {
+            User user = new User();
+            user.id = this.id;
+            user.email = this.email;
+            user.password = this.password;
+            user.role = this.role;
+            user.fullName = this.fullName;
+            user.isEnabled = this.isEnabled;
+            return user;
+        }
+    }
 
     // ── Lifecycle hook ───────────────────────────────────────────────────────
 
