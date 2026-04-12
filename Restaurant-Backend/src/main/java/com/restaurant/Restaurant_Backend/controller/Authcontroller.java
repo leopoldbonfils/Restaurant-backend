@@ -49,10 +49,10 @@ public class AuthController {
     private long jwtExpirationMs;
 
     public AuthController(UserRepository userRepository,
-                          PasswordEncoder passwordEncoder,
-                          JwtUtil jwtUtil,
-                          AuthenticationManager authenticationManager,
-                          UserDetailsService userDetailsService) {
+        PasswordEncoder passwordEncoder,
+        JwtUtil jwtUtil,
+        AuthenticationManager authenticationManager,
+        UserDetailsService userDetailsService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
