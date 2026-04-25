@@ -1,30 +1,80 @@
 package com.restaurant.Restaurant_Backend.config;
 
-
-
 import com.restaurant.Restaurant_Backend.model.DietaryTag;
 import com.restaurant.Restaurant_Backend.model.MenuItem;
+import com.restaurant.Restaurant_Backend.model.Role;
+import com.restaurant.Restaurant_Backend.model.User;
 import com.restaurant.Restaurant_Backend.repository.MenuItemRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import com.restaurant.Restaurant_Backend.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 
 /**
- * Seeds the database with Rwandan restaurant menu items on the first run.
- * Skipped if menu_items table already has records.
+ * Seeds the database on first startup:
+ *   1. Demo users  (admin, kitchen)  — skipped if already present
+ *   2. Rwandan menu items            — skipped if already present
+ *
+ * NOTE: Lombok is NOT used here — NetBeans compatibility issue.
+ *       All builder calls use the manual builder in User.java.
  */
 @Configuration
-@RequiredArgsConstructor
-@Slf4j
 public class DataSeeder {
 
+    private static final Logger log = LoggerFactory.getLogger(DataSeeder.class);
+
     private final MenuItemRepository menuItemRepository;
+    private final UserRepository     userRepository;
+    private final PasswordEncoder    passwordEncoder;
+
+    public DataSeeder(MenuItemRepository menuItemRepository,
+                      UserRepository userRepository,
+                      PasswordEncoder passwordEncoder) {
+        this.menuItemRepository = menuItemRepository;
+        this.userRepository     = userRepository;
+        this.passwordEncoder    = passwordEncoder;
+    }
+
+    // ── 1. Seed staff accounts ────────────────────────────────────────────
+
+    @Bean
+    public CommandLineRunner seedUsers() {
+        return args -> {
+            if (userRepository.existsByEmail("admin@demo.rw")) {
+                log.info("Staff accounts already seeded – skipping.");
+                return;
+            }
+
+            userRepository.saveAll(List.of(
+                User.builder()
+                    .email("admin@demo.rw")
+                    .password(passwordEncoder.encode("admin123"))
+                    .fullName("Admin User")
+                    .role(Role.ADMIN)
+                    .isEnabled(true)
+                    .build(),
+
+                User.builder()
+                    .email("kitchen@demo.rw")
+                    .password(passwordEncoder.encode("kitchen123"))
+                    .fullName("Kitchen Staff")
+                    .role(Role.KITCHEN)
+                    .isEnabled(true)
+                    .build()
+            ));
+
+            log.info("✅ Demo staff accounts seeded (admin + kitchen).");
+        };
+    }
+
+    // ── 2. Seed menu items ─────────────────────────────────────────────────
 
     @Bean
     public CommandLineRunner seedMenu() {
@@ -33,109 +83,84 @@ public class DataSeeder {
                 log.info("Menu already seeded – skipping.");
                 return;
             }
-            log.info("Seeding initial menu data...");
+            log.info("Seeding initial menu data…");
 
             menuItemRepository.saveAll(List.of(
 
                 // ── Main Course ───────────────────────────────────────────
-                MenuItem.builder()
-                        .name("Brochette").category("Main Course").imageEmoji("🍢")
-                        .description("Grilled meat skewers, perfectly seasoned")
-                        .price(new BigDecimal("3000")).prepTimeMinutes(15)
-                        .isSpicy(false).isAvailable(true)
-                        .dietaryTags(Set.of(DietaryTag.HALAL))
-                        .allergens(Set.of("Meat")).build(),
+                buildMenuItem("Brochette",  "Main Course", "🍢",
+                    "Grilled meat skewers, perfectly seasoned",
+                    "3000", 15, false, Set.of(DietaryTag.HALAL), Set.of("Meat")),
 
-                MenuItem.builder()
-                        .name("Ugali").category("Main Course").imageEmoji("🍚")
-                        .description("Traditional corn meal, a Rwandan staple")
-                        .price(new BigDecimal("1500")).prepTimeMinutes(10)
-                        .isSpicy(false).isAvailable(true)
-                        .dietaryTags(Set.of(DietaryTag.VEGAN, DietaryTag.GLUTEN_FREE))
-                        .allergens(Set.of()).build(),
+                buildMenuItem("Ugali", "Main Course", "🍚",
+                    "Traditional corn meal, a Rwandan staple",
+                    "1500", 10, false, Set.of(DietaryTag.VEGAN, DietaryTag.GLUTEN_FREE), Set.of()),
 
-                MenuItem.builder()
-                        .name("Isombe").category("Main Course").imageEmoji("🥬")
-                        .description("Cassava leaves stew with palm oil")
-                        .price(new BigDecimal("2500")).prepTimeMinutes(20)
-                        .isSpicy(true).isAvailable(true)
-                        .dietaryTags(Set.of(DietaryTag.VEGAN))
-                        .allergens(Set.of()).build(),
+                buildMenuItem("Isombe", "Main Course", "🥬",
+                    "Cassava leaves stew with palm oil",
+                    "2500", 20, true, Set.of(DietaryTag.VEGAN), Set.of()),
 
-                MenuItem.builder()
-                        .name("Ibihaza").category("Main Course").imageEmoji("🎃")
-                        .description("Pumpkin cooked with beans – hearty & filling")
-                        .price(new BigDecimal("2000")).prepTimeMinutes(18)
-                        .isSpicy(false).isAvailable(true)
-                        .dietaryTags(Set.of(DietaryTag.VEGAN, DietaryTag.GLUTEN_FREE))
-                        .allergens(Set.of()).build(),
+                buildMenuItem("Ibihaza", "Main Course", "🎃",
+                    "Pumpkin cooked with beans – hearty & filling",
+                    "2000", 18, false, Set.of(DietaryTag.VEGAN, DietaryTag.GLUTEN_FREE), Set.of()),
 
                 // ── Appetizers ────────────────────────────────────────────
-                MenuItem.builder()
-                        .name("Sambaza").category("Appetizer").imageEmoji("🐟")
-                        .description("Crispy fried small lake fish")
-                        .price(new BigDecimal("2000")).prepTimeMinutes(12)
-                        .isSpicy(false).isAvailable(true)
-                        .dietaryTags(Set.of(DietaryTag.HALAL))
-                        .allergens(Set.of("Fish")).build(),
+                buildMenuItem("Sambaza", "Appetizer", "🐟",
+                    "Crispy fried small lake fish",
+                    "2000", 12, false, Set.of(DietaryTag.HALAL), Set.of("Fish")),
 
-                MenuItem.builder()
-                        .name("Akabanga Wings").category("Appetizer").imageEmoji("🍗")
-                        .description("Chicken wings tossed in Akabanga chili oil")
-                        .price(new BigDecimal("2500")).prepTimeMinutes(15)
-                        .isSpicy(true).isAvailable(true)
-                        .dietaryTags(Set.of(DietaryTag.HALAL))
-                        .allergens(Set.of("Poultry")).build(),
+                buildMenuItem("Akabanga Wings", "Appetizer", "🍗",
+                    "Chicken wings tossed in Akabanga chili oil",
+                    "2500", 15, true, Set.of(DietaryTag.HALAL), Set.of("Poultry")),
 
                 // ── Sides ─────────────────────────────────────────────────
-                MenuItem.builder()
-                        .name("Chips").category("Side").imageEmoji("🍟")
-                        .description("Crispy golden French fries")
-                        .price(new BigDecimal("2000")).prepTimeMinutes(8)
-                        .isSpicy(false).isAvailable(true)
-                        .dietaryTags(Set.of(DietaryTag.VEGAN))
-                        .allergens(Set.of()).build(),
+                buildMenuItem("Chips", "Side", "🍟",
+                    "Crispy golden French fries",
+                    "2000", 8, false, Set.of(DietaryTag.VEGAN), Set.of()),
 
-                MenuItem.builder()
-                        .name("Mizuzu").category("Side").imageEmoji("🍌")
-                        .description("Deep-fried plantain slices")
-                        .price(new BigDecimal("1200")).prepTimeMinutes(7)
-                        .isSpicy(false).isAvailable(true)
-                        .dietaryTags(Set.of(DietaryTag.VEGAN, DietaryTag.GLUTEN_FREE))
-                        .allergens(Set.of()).build(),
+                buildMenuItem("Mizuzu", "Side", "🍌",
+                    "Deep-fried plantain slices",
+                    "1200", 7, false, Set.of(DietaryTag.VEGAN, DietaryTag.GLUTEN_FREE), Set.of()),
 
                 // ── Drinks ────────────────────────────────────────────────
-                MenuItem.builder()
-                        .name("Primus Beer").category("Drinks").imageEmoji("🍺")
-                        .description("Rwanda's iconic local lager")
-                        .price(new BigDecimal("1500")).prepTimeMinutes(2)
-                        .isSpicy(false).isAvailable(true)
-                        .dietaryTags(Set.of()).allergens(Set.of("Gluten")).build(),
+                buildMenuItem("Primus Beer", "Drinks", "🍺",
+                    "Rwanda's iconic local lager",
+                    "1500", 2, false, Set.of(), Set.of("Gluten")),
 
-                MenuItem.builder()
-                        .name("Fanta").category("Drinks").imageEmoji("🥤")
-                        .description("Chilled soft drink – Orange or Citron")
-                        .price(new BigDecimal("800")).prepTimeMinutes(1)
-                        .isSpicy(false).isAvailable(true)
-                        .dietaryTags(Set.of(DietaryTag.VEGAN)).allergens(Set.of()).build(),
+                buildMenuItem("Fanta", "Drinks", "🥤",
+                    "Chilled soft drink – Orange or Citron",
+                    "800", 1, false, Set.of(DietaryTag.VEGAN), Set.of()),
 
-                MenuItem.builder()
-                        .name("Ikawa (Coffee)").category("Drinks").imageEmoji("☕")
-                        .description("Premium single-origin Rwandan coffee")
-                        .price(new BigDecimal("1000")).prepTimeMinutes(3)
-                        .isSpicy(false).isAvailable(true)
-                        .dietaryTags(Set.of(DietaryTag.VEGAN)).allergens(Set.of()).build(),
+                buildMenuItem("Ikawa (Coffee)", "Drinks", "☕",
+                    "Premium single-origin Rwandan coffee",
+                    "1000", 3, false, Set.of(DietaryTag.VEGAN), Set.of()),
 
-                MenuItem.builder()
-                        .name("Passion Fruit Juice").category("Drinks").imageEmoji("🍹")
-                        .description("Freshly squeezed passion fruit, lightly sweetened")
-                        .price(new BigDecimal("1200")).prepTimeMinutes(3)
-                        .isSpicy(false).isAvailable(true)
-                        .dietaryTags(Set.of(DietaryTag.VEGAN, DietaryTag.GLUTEN_FREE))
-                        .allergens(Set.of()).build()
+                buildMenuItem("Passion Fruit Juice", "Drinks", "🍹",
+                    "Freshly squeezed passion fruit, lightly sweetened",
+                    "1200", 3, false, Set.of(DietaryTag.VEGAN, DietaryTag.GLUTEN_FREE), Set.of())
             ));
 
             log.info("✅ Menu seeded with {} items.", menuItemRepository.count());
         };
+    }
+
+    // ── Private builder helper ─────────────────────────────────────────────
+
+    private MenuItem buildMenuItem(String name, String category, String emoji,
+                                   String description, String price,
+                                   int prepTime, boolean isSpicy,
+                                   Set<DietaryTag> dietaryTags, Set<String> allergens) {
+        MenuItem item = new MenuItem();
+        item.setName(name);
+        item.setCategory(category);
+        item.setImageEmoji(emoji);
+        item.setDescription(description);
+        item.setPrice(new BigDecimal(price));
+        item.setPrepTimeMinutes(prepTime);
+        item.setIsSpicy(isSpicy);
+        item.setIsAvailable(true);
+        item.setDietaryTags(dietaryTags);
+        item.setAllergens(allergens);
+        return item;
     }
 }

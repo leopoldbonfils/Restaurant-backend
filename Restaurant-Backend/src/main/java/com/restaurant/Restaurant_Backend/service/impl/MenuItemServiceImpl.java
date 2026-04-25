@@ -1,6 +1,5 @@
 package com.restaurant.Restaurant_Backend.service.impl;
 
-
 import com.restaurant.Restaurant_Backend.dto.request.MenuItemRequest;
 import com.restaurant.Restaurant_Backend.dto.response.MenuItemResponse;
 import com.restaurant.Restaurant_Backend.exception.ResourceNotFoundException;
@@ -8,7 +7,6 @@ import com.restaurant.Restaurant_Backend.model.DietaryTag;
 import com.restaurant.Restaurant_Backend.model.MenuItem;
 import com.restaurant.Restaurant_Backend.repository.MenuItemRepository;
 import com.restaurant.Restaurant_Backend.service.MenuItemService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,11 +14,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 @Transactional
 public class MenuItemServiceImpl implements MenuItemService {
 
     private final MenuItemRepository menuItemRepository;
+
+    public MenuItemServiceImpl(MenuItemRepository menuItemRepository) {
+        this.menuItemRepository = menuItemRepository;
+    }
 
     @Override
     public MenuItemResponse create(MenuItemRequest request) {
@@ -95,8 +96,6 @@ public class MenuItemServiceImpl implements MenuItemService {
         item.setIsAvailable(!item.getIsAvailable());
         return toResponse(menuItemRepository.save(item));
     }
-
-    // ── Private helpers ──────────────────────────────────────────────────────
 
     private MenuItem findItemById(Long id) {
         return menuItemRepository.findById(id)

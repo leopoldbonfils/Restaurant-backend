@@ -7,7 +7,6 @@ import com.restaurant.Restaurant_Backend.exception.ResourceNotFoundException;
 import com.restaurant.Restaurant_Backend.model.Customer;
 import com.restaurant.Restaurant_Backend.repository.CustomerRepository;
 import com.restaurant.Restaurant_Backend.service.CustomerService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,11 +15,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 @Transactional
 public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository customerRepository;
+
+    public CustomerServiceImpl(CustomerRepository customerRepository) {
+        this.customerRepository = customerRepository;
+    }
 
     @Override
     public CustomerResponse checkIn(CustomerCheckInRequest request) {
@@ -80,8 +82,6 @@ public class CustomerServiceImpl implements CustomerService {
         customer.setLoyaltyPoints(customer.getLoyaltyPoints() + points);
         customerRepository.save(customer);
     }
-
-    // ── Private helpers ──────────────────────────────────────────────────────
 
     private Customer findCustomerById(Long id) {
         return customerRepository.findById(id)

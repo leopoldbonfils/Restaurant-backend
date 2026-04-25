@@ -1,6 +1,5 @@
 package com.restaurant.Restaurant_Backend.controller;
 
-
 import com.restaurant.Restaurant_Backend.dto.request.PlaceOrderRequest;
 import com.restaurant.Restaurant_Backend.dto.request.UpdateOrderStatusRequest;
 import com.restaurant.Restaurant_Backend.dto.response.AnalyticsSummaryResponse;
@@ -9,7 +8,6 @@ import com.restaurant.Restaurant_Backend.dto.response.OrderResponse;
 import com.restaurant.Restaurant_Backend.model.OrderStatus;
 import com.restaurant.Restaurant_Backend.service.OrderService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,10 +16,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/orders")
-@RequiredArgsConstructor
 public class OrderController {
 
     private final OrderService orderService;
+
+    public OrderController(OrderService orderService) {
+        this.orderService = orderService;
+    }
 
     @PostMapping
     public ResponseEntity<ApiResponse<OrderResponse>> placeOrder(
@@ -50,40 +51,34 @@ public class OrderController {
         return ResponseEntity.ok(ApiResponse.ok(orderService.findById(id)));
     }
 
-    // Admin / kitchen: all orders
     @GetMapping
     public ResponseEntity<ApiResponse<List<OrderResponse>>> getAll() {
         return ResponseEntity.ok(ApiResponse.ok(orderService.findAll()));
     }
 
-    // Kitchen board: active orders only (PENDING, PREPARING, READY, DELIVERED)
     @GetMapping("/active")
     public ResponseEntity<ApiResponse<List<OrderResponse>>> getActive() {
         return ResponseEntity.ok(ApiResponse.ok(orderService.findActive()));
     }
 
-    // Filter by status
     @GetMapping("/status/{status}")
     public ResponseEntity<ApiResponse<List<OrderResponse>>> getByStatus(
             @PathVariable OrderStatus status) {
         return ResponseEntity.ok(ApiResponse.ok(orderService.findByStatus(status)));
     }
 
-    // Customer order tracking by table
     @GetMapping("/table/{tableNumber}")
     public ResponseEntity<ApiResponse<List<OrderResponse>>> getByTable(
             @PathVariable String tableNumber) {
         return ResponseEntity.ok(ApiResponse.ok(orderService.findByTable(tableNumber)));
     }
 
-    // Customer order history
     @GetMapping("/customer/{customerId}")
     public ResponseEntity<ApiResponse<List<OrderResponse>>> getByCustomer(
             @PathVariable Long customerId) {
         return ResponseEntity.ok(ApiResponse.ok(orderService.findByCustomer(customerId)));
     }
 
-    // Admin dashboard analytics
     @GetMapping("/analytics")
     public ResponseEntity<ApiResponse<AnalyticsSummaryResponse>> getAnalytics() {
         return ResponseEntity.ok(ApiResponse.ok(orderService.getAnalyticsSummary()));
