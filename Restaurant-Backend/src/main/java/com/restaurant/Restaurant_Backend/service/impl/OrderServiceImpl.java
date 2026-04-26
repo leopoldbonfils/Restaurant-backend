@@ -14,7 +14,6 @@ import com.restaurant.Restaurant_Backend.repository.OrderRepository;
 import com.restaurant.Restaurant_Backend.service.CustomerService;
 import com.restaurant.Restaurant_Backend.service.OrderService;
 import com.restaurant.Restaurant_Backend.websocket.OrderNotificationService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,15 +27,29 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 @Transactional
 public class OrderServiceImpl implements OrderService {
 
-    private final OrderRepository orderRepository;
-    private final CustomerRepository customerRepository;
-    private final MenuItemRepository menuItemRepository;
-    private final CustomerService customerService;
+    private final OrderRepository          orderRepository;
+    private final CustomerRepository       customerRepository;
+    private final MenuItemRepository       menuItemRepository;
+    private final CustomerService          customerService;
     private final OrderNotificationService notificationService;
+
+    // ── Explicit constructor (replaces @RequiredArgsConstructor) ──────────────
+    public OrderServiceImpl(OrderRepository orderRepository,
+                            CustomerRepository customerRepository,
+                            MenuItemRepository menuItemRepository,
+                            CustomerService customerService,
+                            OrderNotificationService notificationService) {
+        this.orderRepository    = orderRepository;
+        this.customerRepository = customerRepository;
+        this.menuItemRepository = menuItemRepository;
+        this.customerService    = customerService;
+        this.notificationService = notificationService;
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
 
     @Override
     public OrderResponse placeOrder(PlaceOrderRequest request) {
@@ -90,9 +103,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderResponse updateStatus(Long orderId, UpdateOrderStatusRequest request) {
-        Order order = findOrderById(orderId);
+        Order order    = findOrderById(orderId);
         OrderStatus previous = order.getStatus();
-        OrderStatus next = request.getStatus();
+        OrderStatus next     = request.getStatus();
 
         validateTransition(previous, next);
 
@@ -171,12 +184,12 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = true)
     public AnalyticsSummaryResponse getAnalyticsSummary() {
         LocalDateTime start = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0);
-        LocalDateTime end = LocalDateTime.now();
+        LocalDateTime end   = LocalDateTime.now();
 
-        long total = orderRepository.count();
-        long completed = orderRepository.countCompletedBetween(start, end);
+        long total      = orderRepository.count();
+        long completed  = orderRepository.countCompletedBetween(start, end);
         BigDecimal revenue = orderRepository.sumRevenueBetween(start, end);
-        BigDecimal avg = completed > 0
+        BigDecimal avg  = completed > 0
                 ? revenue.divide(BigDecimal.valueOf(completed), 2, RoundingMode.HALF_UP)
                 : BigDecimal.ZERO;
 
@@ -205,7 +218,7 @@ public class OrderServiceImpl implements OrderService {
                 .build();
     }
 
-    // ── Private helpers ──────────────────────────────────────────────────────
+    // ── Private helpers ───────────────────────────────────────────────────────
 
     private Order findOrderById(Long id) {
         return orderRepository.findById(id)
@@ -215,7 +228,7 @@ public class OrderServiceImpl implements OrderService {
     private void validateTransition(OrderStatus from, OrderStatus to) {
         boolean valid = switch (from) {
             case PENDING   -> to == OrderStatus.PREPARING || to == OrderStatus.CANCELLED;
-            case PREPARING -> to == OrderStatus.READY    || to == OrderStatus.CANCELLED;
+            case PREPARING -> to == OrderStatus.READY     || to == OrderStatus.CANCELLED;
             case READY     -> to == OrderStatus.DELIVERED;
             case DELIVERED -> to == OrderStatus.PAID;
             case PAID, CANCELLED -> false;

@@ -1,101 +1,46 @@
 package com.restaurant.Restaurant_Backend.model;
 
-
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * The central domain object — one order placed by a customer.
- *
- * Table created automatically: "orders"
- *
- * Columns:
- *   id, customer_id (FK), table_number, status,
- *   total_amount, special_requests,
- *   estimated_prep_minutes,
- *   created_at, updated_at, completed_at
- *
- * Status lifecycle:
- *   PENDING → PREPARING → READY → DELIVERED → PAID
- *                                            ↘ CANCELLED
- */
 @Entity
 @Table(name = "orders")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /**
-     * The customer who placed this order.
-     * FK column: customer_id in the "orders" table.
-     * LAZY — only loaded when explicitly accessed.
-     */
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
 
-    /**
-     * Denormalised copy of the table number.
-     * Lets the kitchen see the destination without joining to Customer.
-     */
     @NotBlank
     @Column(name = "table_number", nullable = false, length = 20)
     private String tableNumber;
 
-    /**
-     * Current stage of the order.
-     * Stored as VARCHAR so the kitchen/waiter screens can filter by name.
-     */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    @Builder.Default
     private OrderStatus status = OrderStatus.PENDING;
 
-    /**
-     * The line items that make up this order.
-     * CascadeType.ALL — saving/deleting Order cascades to its OrderItems.
-     * orphanRemoval   — removing an item from the list deletes it from DB.
-     */
     @OneToMany(
         mappedBy = "order",
         cascade = CascadeType.ALL,
         orphanRemoval = true
     )
-    @Builder.Default
     private List<OrderItem> items = new ArrayList<>();
 
-    /**
-     * Total price — sum of (unitPrice × quantity) for all items.
-     * Recalculated by recalculateTotal() before every save.
-     */
     @Column(name = "total_amount", nullable = false, precision = 10, scale = 2)
-    @Builder.Default
     private BigDecimal totalAmount = BigDecimal.ZERO;
 
-    /**
-     * Customer's free-text instructions:
-     * "No onions", "Extra spicy", "Allergy: nuts", etc.
-     */
     @Column(name = "special_requests", length = 500)
     private String specialRequests;
 
-    /**
-     * Estimated wait time shown to the customer after placing the order.
-     * Calculated as: max(prepTime of all items) + 5 minutes buffer.
-     */
     @Column(name = "estimated_prep_minutes")
     private Integer estimatedPrepMinutes;
 
@@ -105,14 +50,14 @@ public class Order {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    /**
-     * Set when the order reaches PAID or CANCELLED status.
-     * Used for analytics (how long did it take to complete an order?).
-     */
     @Column(name = "completed_at")
     private LocalDateTime completedAt;
 
-    // ── Lifecycle hooks ──────────────────────────────────────────────────────
+    // ── Constructors ──────────────────────────────────────────────────────────
+
+    public Order() {}
+
+    // ── Lifecycle hooks ───────────────────────────────────────────────────────
 
     @PrePersist
     public void onCreate() {
@@ -129,22 +74,82 @@ public class Order {
         }
     }
 
-    // ── Helper methods ───────────────────────────────────────────────────────
+    // ── Helper methods ────────────────────────────────────────────────────────
 
-    /**
-     * Recalculates totalAmount from the current list of OrderItems.
-     * Call this whenever items are added or removed before saving.
-     */
     public void recalculateTotal() {
         this.totalAmount = items.stream()
                 .map(OrderItem::getLineTotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    /** Convenience — add an item and keep total in sync. */
     public void addItem(OrderItem item) {
         item.setOrder(this);
         this.items.add(item);
         recalculateTotal();
+    }
+
+    // ── Getters ───────────────────────────────────────────────────────────────
+
+    public Long getId()                        { return id; }
+    public Customer getCustomer()              { return customer; }
+    public String getTableNumber()             { return tableNumber; }
+    public OrderStatus getStatus()             { return status; }
+    public List<OrderItem> getItems()          { return items; }
+    public BigDecimal getTotalAmount()         { return totalAmount; }
+    public String getSpecialRequests()         { return specialRequests; }
+    public Integer getEstimatedPrepMinutes()   { return estimatedPrepMinutes; }
+    public LocalDateTime getCreatedAt()        { return createdAt; }
+    public LocalDateTime getUpdatedAt()        { return updatedAt; }
+    public LocalDateTime getCompletedAt()      { return completedAt; }
+
+    // ── Setters ───────────────────────────────────────────────────────────────
+
+    public void setId(Long id)                                   { this.id = id; }
+    public void setCustomer(Customer customer)                   { this.customer = customer; }
+    public void setTableNumber(String tableNumber)               { this.tableNumber = tableNumber; }
+    public void setStatus(OrderStatus status)                    { this.status = status; }
+    public void setItems(List<OrderItem> items)                  { this.items = items; }
+    public void setTotalAmount(BigDecimal totalAmount)           { this.totalAmount = totalAmount; }
+    public void setSpecialRequests(String specialRequests)       { this.specialRequests = specialRequests; }
+    public void setEstimatedPrepMinutes(Integer v)               { this.estimatedPrepMinutes = v; }
+    public void setCreatedAt(LocalDateTime createdAt)            { this.createdAt = createdAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt)            { this.updatedAt = updatedAt; }
+    public void setCompletedAt(LocalDateTime completedAt)        { this.completedAt = completedAt; }
+
+    // ── Builder ───────────────────────────────────────────────────────────────
+
+    public static Builder builder() { return new Builder(); }
+
+    public static class Builder {
+        private Long id;
+        private Customer customer;
+        private String tableNumber;
+        private OrderStatus status = OrderStatus.PENDING;
+        private List<OrderItem> items = new ArrayList<>();
+        private BigDecimal totalAmount = BigDecimal.ZERO;
+        private String specialRequests;
+        private Integer estimatedPrepMinutes;
+
+        public Builder id(Long v)                       { this.id = v; return this; }
+        public Builder customer(Customer v)             { this.customer = v; return this; }
+        public Builder tableNumber(String v)            { this.tableNumber = v; return this; }
+        public Builder status(OrderStatus v)            { this.status = v; return this; }
+        public Builder items(List<OrderItem> v)         { this.items = v; return this; }
+        public Builder totalAmount(BigDecimal v)        { this.totalAmount = v; return this; }
+        public Builder specialRequests(String v)        { this.specialRequests = v; return this; }
+        public Builder estimatedPrepMinutes(Integer v)  { this.estimatedPrepMinutes = v; return this; }
+
+        public Order build() {
+            Order o = new Order();
+            o.id = this.id;
+            o.customer = this.customer;
+            o.tableNumber = this.tableNumber;
+            o.status = this.status;
+            o.items = this.items;
+            o.totalAmount = this.totalAmount;
+            o.specialRequests = this.specialRequests;
+            o.estimatedPrepMinutes = this.estimatedPrepMinutes;
+            return o;
+        }
     }
 }
