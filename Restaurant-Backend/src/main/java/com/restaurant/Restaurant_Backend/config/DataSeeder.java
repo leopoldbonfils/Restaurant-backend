@@ -15,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -52,7 +53,7 @@ public class DataSeeder {
                 return;
             }
 
-            userRepository.saveAll(List.of(
+            userRepository.saveAll(Objects.requireNonNull(List.of(
                 User.builder()
                     .email("admin@demo.rw")
                     .password(passwordEncoder.encode("admin123"))
@@ -68,7 +69,7 @@ public class DataSeeder {
                     .role(Role.KITCHEN)
                     .isEnabled(true)
                     .build()
-            ));
+            )));
 
             log.info("✅ Demo staff accounts seeded (admin + kitchen).");
         };
@@ -85,7 +86,7 @@ public class DataSeeder {
             }
             log.info("Seeding initial menu data…");
 
-            menuItemRepository.saveAll(List.of(
+            menuItemRepository.saveAll(Objects.requireNonNull(List.of(
 
                 // ── Main Course ───────────────────────────────────────────
                 buildMenuItem("Brochette",  "Main Course", "🍢",
@@ -138,7 +139,7 @@ public class DataSeeder {
                 buildMenuItem("Passion Fruit Juice", "Drinks", "🍹",
                     "Freshly squeezed passion fruit, lightly sweetened",
                     "1200", 3, false, Set.of(DietaryTag.VEGAN, DietaryTag.GLUTEN_FREE), Set.of())
-            ));
+            )));
 
             log.info("✅ Menu seeded with {} items.", menuItemRepository.count());
         };

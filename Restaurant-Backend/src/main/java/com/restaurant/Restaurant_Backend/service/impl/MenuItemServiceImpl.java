@@ -7,10 +7,12 @@ import com.restaurant.Restaurant_Backend.model.DietaryTag;
 import com.restaurant.Restaurant_Backend.model.MenuItem;
 import com.restaurant.Restaurant_Backend.repository.MenuItemRepository;
 import com.restaurant.Restaurant_Backend.service.MenuItemService;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,30 +26,37 @@ public class MenuItemServiceImpl implements MenuItemService {
     }
 
     @Override
+    @SuppressWarnings("null")
     public MenuItemResponse create(MenuItemRequest request) {
         MenuItem item = toEntity(new MenuItem(), request);
-        return toResponse(menuItemRepository.save(item));
+        MenuItem saved = menuItemRepository.save(item);
+        return toResponse(saved);
     }
 
     @Override
+    @SuppressWarnings("null")
     public MenuItemResponse update(Long id, MenuItemRequest request) {
-        MenuItem item = findItemById(id);
+        Long nonNullId = Objects.requireNonNull(id);
+        MenuItem item = findItemById(nonNullId);
         toEntity(item, request);
-        return toResponse(menuItemRepository.save(item));
+        MenuItem saved = menuItemRepository.save(item);
+        return toResponse(saved);
     }
 
     @Override
     public void delete(Long id) {
-        if (!menuItemRepository.existsById(id)) {
-            throw new ResourceNotFoundException("MenuItem", id);
+        Long nonNullId = Objects.requireNonNull(id);
+        if (!menuItemRepository.existsById(nonNullId)) {
+            throw new ResourceNotFoundException("MenuItem", nonNullId);
         }
-        menuItemRepository.deleteById(id);
+        menuItemRepository.deleteById(nonNullId);
     }
 
     @Override
     @Transactional(readOnly = true)
     public MenuItemResponse findById(Long id) {
-        return toResponse(findItemById(id));
+        Long nonNullId = Objects.requireNonNull(id);
+        return toResponse(findItemById(nonNullId));
     }
 
     @Override
@@ -91,13 +100,17 @@ public class MenuItemServiceImpl implements MenuItemService {
     }
 
     @Override
+    @SuppressWarnings("null")
     public MenuItemResponse toggleAvailability(Long id) {
-        MenuItem item = findItemById(id);
+        Long nonNullId = Objects.requireNonNull(id);
+        MenuItem item = findItemById(nonNullId);
         item.setIsAvailable(!item.getIsAvailable());
-        return toResponse(menuItemRepository.save(item));
+        MenuItem saved = menuItemRepository.save(item);
+        return toResponse(saved);
     }
 
-    private MenuItem findItemById(Long id) {
+    private MenuItem findItemById(@NonNull Long id) {
+        Objects.requireNonNull(id);
         return menuItemRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("MenuItem", id));
     }
@@ -109,9 +122,13 @@ public class MenuItemServiceImpl implements MenuItemService {
         item.setCategory(req.getCategory());
         item.setImageEmoji(req.getImageEmoji());
         item.setImageUrl(req.getImageUrl());
-        item.setPrepTimeMinutes(req.getPrepTimeMinutes() != null ? req.getPrepTimeMinutes() : 10);
-        item.setIsSpicy(req.getIsSpicy() != null ? req.getIsSpicy() : false);
-        item.setIsAvailable(req.getIsAvailable() != null ? req.getIsAvailable() : true);
+        Integer prepTime = req.getPrepTimeMinutes();
+        Boolean isSpicy = req.getIsSpicy();
+        Boolean isAvailable = req.getIsAvailable();
+
+        item.setPrepTimeMinutes(prepTime != null ? prepTime : 10);
+        item.setIsSpicy(isSpicy != null ? isSpicy : false);
+        item.setIsAvailable(isAvailable != null ? isAvailable : true);
         item.setDietaryTags(req.getDietaryTags());
         item.setAllergens(req.getAllergens());
         return item;

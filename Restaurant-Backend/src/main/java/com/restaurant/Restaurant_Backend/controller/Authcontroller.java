@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import java.util.Objects;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -93,7 +94,7 @@ public class AuthController {
                 .isEnabled(true)
                 .build();
 
-        userRepository.save(user);
+        user = Objects.requireNonNull(userRepository.save(user));
         log.info("New user registered: {} with role {}", user.getEmail(), user.getRole());
 
         // Generate token so frontend can use the app immediately

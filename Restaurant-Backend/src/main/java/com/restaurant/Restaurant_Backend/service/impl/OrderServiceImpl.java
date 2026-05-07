@@ -14,6 +14,7 @@ import com.restaurant.Restaurant_Backend.repository.OrderRepository;
 import com.restaurant.Restaurant_Backend.service.CustomerService;
 import com.restaurant.Restaurant_Backend.service.OrderService;
 import com.restaurant.Restaurant_Backend.websocket.OrderNotificationService;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +22,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,9 +55,10 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderResponse placeOrder(PlaceOrderRequest request) {
-        Customer customer = customerRepository.findById(request.getCustomerId())
+        Long customerId = Objects.requireNonNull(request.getCustomerId());
+        Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                    "Customer", request.getCustomerId()));
+                    "Customer", customerId));
 
         Order order = Order.builder()
                 .customer(customer)
@@ -66,9 +69,10 @@ public class OrderServiceImpl implements OrderService {
 
         int maxPrepTime = 0;
         for (PlaceOrderRequest.OrderItemRequest itemReq : request.getItems()) {
-            MenuItem menuItem = menuItemRepository.findById(itemReq.getMenuItemId())
+            Long menuItemId = Objects.requireNonNull(itemReq.getMenuItemId());
+            MenuItem menuItem = menuItemRepository.findById(menuItemId)
                     .orElseThrow(() -> new ResourceNotFoundException(
-                        "MenuItem", itemReq.getMenuItemId()));
+                        "MenuItem", menuItemId));
 
             if (!menuItem.getIsAvailable()) {
                 throw new BadRequestException(
@@ -103,7 +107,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderResponse updateStatus(Long orderId, UpdateOrderStatusRequest request) {
-        Order order    = findOrderById(orderId);
+        Long nonNullOrderId = Objects.requireNonNull(orderId);
+        Order order    = findOrderById(nonNullOrderId);
         OrderStatus previous = order.getStatus();
         OrderStatus next     = request.getStatus();
 
@@ -118,7 +123,8 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional(readOnly = true)
     public OrderResponse findById(Long id) {
-        return toResponse(findOrderById(id));
+        Long nonNullId = Objects.requireNonNull(id);
+        return toResponse(findOrderById(nonNullId));
     }
 
     @Override
@@ -159,14 +165,16 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional(readOnly = true)
     public List<OrderResponse> findByCustomer(Long customerId) {
-        return orderRepository.findByCustomerIdOrderByCreatedAtDesc(customerId).stream()
+        Long nonNullCustomerId = Objects.requireNonNull(customerId);
+        return orderRepository.findByCustomerIdOrderByCreatedAtDesc(nonNullCustomerId).stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
 
     @Override
     public OrderResponse cancelOrder(Long orderId) {
-        Order order = findOrderById(orderId);
+        Long nonNullOrderId = Objects.requireNonNull(orderId);
+        Order order = findOrderById(nonNullOrderId);
         if (order.getStatus() == OrderStatus.READY
                 || order.getStatus() == OrderStatus.DELIVERED
                 || order.getStatus() == OrderStatus.PAID) {
@@ -220,7 +228,8 @@ public class OrderServiceImpl implements OrderService {
 
     // ── Private helpers ───────────────────────────────────────────────────────
 
-    private Order findOrderById(Long id) {
+    private Order findOrderById(@NonNull Long id) {
+        Objects.requireNonNull(id);
         return orderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Order", id));
     }

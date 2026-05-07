@@ -8,6 +8,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 /**
  * Broadcasts real-time order-status events to WebSocket subscribers.
@@ -39,10 +40,10 @@ public class OrderNotificationService {
                 .timestamp(LocalDateTime.now())
                 .build();
 
-        messagingTemplate.convertAndSend("/topic/orders", event);
+        messagingTemplate.convertAndSend("/topic/orders", Objects.requireNonNull(event));
 
         String tableDestination = "/topic/orders/" + order.getTableNumber();
-        messagingTemplate.convertAndSend(tableDestination, event);
+        messagingTemplate.convertAndSend(tableDestination, Objects.requireNonNull(event));
 
         log.debug("WebSocket event → orderId={} table={} {}→{}",
                 order.getId(), order.getTableNumber(), previousStatus, order.getStatus());

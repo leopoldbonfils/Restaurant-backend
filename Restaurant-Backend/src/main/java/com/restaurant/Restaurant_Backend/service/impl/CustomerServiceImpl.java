@@ -7,11 +7,13 @@ import com.restaurant.Restaurant_Backend.exception.ResourceNotFoundException;
 import com.restaurant.Restaurant_Backend.model.Customer;
 import com.restaurant.Restaurant_Backend.repository.CustomerRepository;
 import com.restaurant.Restaurant_Backend.service.CustomerService;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,6 +27,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    @SuppressWarnings("null")
     public CustomerResponse checkIn(CustomerCheckInRequest request) {
         if (customerRepository.existsByTableNumberAndCheckedOutAtIsNull(request.getTableNumber())) {
             throw new BadRequestException(
@@ -37,12 +40,14 @@ public class CustomerServiceImpl implements CustomerService {
                 .preferredLanguage(
                     request.getPreferredLanguage() != null ? request.getPreferredLanguage() : "en")
                 .build();
-        return toResponse(customerRepository.save(customer));
+        Customer saved = customerRepository.save(customer);
+        return toResponse(saved);
     }
 
     @Override
     public CustomerResponse checkOut(Long customerId) {
-        Customer customer = findCustomerById(customerId);
+        Long nonNullCustomerId = Objects.requireNonNull(customerId);
+        Customer customer = findCustomerById(nonNullCustomerId);
         if (customer.getCheckedOutAt() != null) {
             throw new BadRequestException("Customer already checked out.");
         }
@@ -53,7 +58,8 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     @Transactional(readOnly = true)
     public CustomerResponse findById(Long id) {
-        return toResponse(findCustomerById(id));
+        Long nonNullId = Objects.requireNonNull(id);
+        return toResponse(findCustomerById(nonNullId));
     }
 
     @Override
@@ -78,12 +84,13 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public void awardLoyaltyPoints(Long customerId, int points) {
-        Customer customer = findCustomerById(customerId);
+        Customer customer = findCustomerById(Objects.requireNonNull(customerId));
         customer.setLoyaltyPoints(customer.getLoyaltyPoints() + points);
         customerRepository.save(customer);
     }
 
-    private Customer findCustomerById(Long id) {
+    private Customer findCustomerById(@NonNull Long id) {
+        Objects.requireNonNull(id);
         return customerRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer", id));
     }
